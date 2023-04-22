@@ -1,0 +1,96 @@
+-
+```{r}
+library(nycflights13)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+
+flights
+airports
+planes
+airlines
+weather
+```
+
+
+```{r}
+
+# Inner-join
+
+flights %>%
+  inner_join(planes, by="tailnum")
+
+flights %>%
+  inner_join(airlines, by="carrier")
+
+flights %>%
+  inner_join(airports, by=c("origin"="faa","dest"="faa"))
+
+flights %>%
+  inner_join(weather, by=c("year","month","day","hour","origin"))
+
+```
+
+
+```{r}
+# 2. Data manipulation
+
+#2.1
+
+flights %>%
+  count(year,month,day) %>%
+  filter(n >"1000") %>%
+  arrange(n)
+
+```
+
+```{r}
+#2.2
+
+flights_selected <-flights %>%
+  select(year:day,hour,origin,dest,tailnum,carrier,arr_delay,dep_delay)
+  
+#2.3
+
+flights_selected %>%
+  left_join(airlines, by="carrier") %>%
+  select(-origin,-dest) %>%
+  mutate(tot_delay= arr_delay + dep_delay)
+
+
+```
+
+```{r}
+#2.4
+
+flights %>%
+  inner_join(weather, by=c("year","month","day","hour","origin")) %>%
+  group_by(precip) %>%
+  summarize(delay = mean(dep_delay,na.rm=TRUE))%>%
+  precip_delay <- replace_na(delay=0,NA)
+
+
+```
+
+```{r}
+#2.5
+
+ggplot(precip_delay, aes(x=precip, y=delay)) + geom_point()
+
+
+```
+```{r}
+
+flights %>%
+  filter(year==2013,month==5,day==10) %>%
+  group_by(dest)%>%
+  summarize(arr_delay = mean(delay,na.rm=TRUE))
+
+```
+```{r}
+#2.7
+
+ggplot(flights, aes(x=lon, y=at,color=delay)) + geom_point()
+```
+
+
